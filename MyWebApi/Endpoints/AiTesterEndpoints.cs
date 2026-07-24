@@ -9,57 +9,28 @@ public static class AiTesterEndpoints
     {
         var group = app.MapGroup("/aiTester");
 
-        group.MapPost("/test-code", async (AiTesterDto testerDto, IConfiguration configuration, HttpClient client) =>
+        group.MapPost("/test-code", async (AiTesterDto testerDto, IOpenRouterService service) =>
         {
-            var apiKey = configuration["OpenRouterApiKey"];
-
-            if (string.IsNullOrEmpty(apiKey))
+            try
             {
-                return Results.Problem("OpenRouterApiKey не знайдено в конфігурації!");
-            }
+                var model = "nvidia/nemotron-3-ultra-550b-a55b:free";
+                const string systemInstruction = "You are tester ai agent, answer shortly and coherently.";
 
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-            const string requestUrl = "https://openrouter.ai/api/v1/chat/completions";
-
-            var payload = new
-            {
-                model = "nvidia/nemotron-3-ultra-550b-a55b:free",
-                messages = new[]
-                {
-                    new 
-                    { 
-                        role = "system", 
-                        content = "You are a code tester assistant. Analyze the user's code and provide short feedback." 
-                    },
-                    new 
-                    { 
-                        role = "user", 
-                        content = testerDto.UserCode 
-                    }
-                }
-            };
-
-            var response = await client.PostAsJsonAsync(requestUrl, payload);
-            var rawJson = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+                var resultText = await service.GetCompletionAsync(
+                    userPrompt : testerDto.UserCode,
+                    systemInstruction : systemInstruction,
+                    model:model
+                );
+                return Results.Ok(resultText);
+                
+            }catch(Exception ex)
             {
                 return Results.BadRequest(new
                 {
-                    Error = "Error from OpenRouter API",
-                    StatusCode = (int)response.StatusCode,
-                    Details = rawJson
+                    Error = "Runtime error",
+                    Details = ex.Message
                 });
             }
-            using var doc = JsonDocument.Parse(rawJson);
-            var responseText = doc.RootElement
-                .GetProperty("choices")[0]
-                .GetProperty("message")
-                .GetProperty("content")
-                .GetString();
-
-            return Results.Ok(responseText);
         });
     }
 }

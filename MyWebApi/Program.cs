@@ -1,7 +1,7 @@
 using MultiAgentTeacher.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<IOpenRouterService, OpenRouterService>();
 
 var app = builder.Build();
 
