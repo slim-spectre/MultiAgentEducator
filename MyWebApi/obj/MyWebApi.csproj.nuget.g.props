@@ -13,4 +13,7 @@
     <SourceRoot Include="C:\Users\User\.nuget\packages\" />
     <SourceRoot Include="D:\vscodePep\NuGetPackages\" />
   </ItemGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)microsoft.extensions.telemetry.abstractions\10.8.0\buildTransitive\net8.0\Microsoft.Extensions.Telemetry.Abstractions.props" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.telemetry.abstractions\10.8.0\buildTransitive\net8.0\Microsoft.Extensions.Telemetry.Abstractions.props')" />
+  </ImportGroup>
 </Project>

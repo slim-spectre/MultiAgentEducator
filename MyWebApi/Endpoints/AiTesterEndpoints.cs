@@ -5,6 +5,7 @@ namespace MultiAgentTeacher.Api.Endpoints;
 
 public static class AiTesterEndpoints
 {
+    private readonly static string model = "qwen/qwen-2.5-coder-32b-instruct:free";
     public static void MapAiTesterEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/aiTester");
@@ -13,7 +14,6 @@ public static class AiTesterEndpoints
         {
             try
             {
-                var model = "nvidia/nemotron-3-ultra-550b-a55b:free";
                 const string systemInstruction = "You are tester ai agent, answer shortly and coherently.";
 
                 var resultText = await service.GetCompletionAsync(
